@@ -1,0 +1,36 @@
+
+k
+L
+driver'Unique identifier for rideshare drivers"	driver_idJdriver_ranking
+ÍÏöÔÈÖ¼»­ŞöÔ¡å
+D
+%
+__dummy"
+__dummy_idJdriver_ranking
+ÍÏöÔàï·¹­ŞöÔèÖƒ1"$bb2589ed-432b-422a-ae3d-a7c7866500ec*¯éöÔÀœ¦2ƒ
+¥
+driver_hourly_statsdriver_rankingdriver"+
+	conv_rate"Ride booking conversion rate")
+acc_rate"Driver trip acceptance rate"4
+avg_daily_trips"Average completed trips per day*
+teamdispatch_ops*
+tiertier-12€õ$:¡event_timestamp*createdZdata/driver_stats.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢driver_stats_source’¬ŞöÔ¨«Óˆ"­ŞöÔè»­@b
+	driver_id’latestY
+ÍÏöÔà»û¶¯éöÔø±ı
+×ÚÑÔ°œ›÷ÎÏöÔ
+ÎÏöÔºÜöÔ
+€Â¯ğ€±ï†0b³event_timestamp*createdZdata/driver_stats.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢driver_stats_sourceªdriver_ranking’ÍÏöÔ°¸ôõ"ÍÏöÔ€íş³Š0
+
+driver_ranking
+ÍÏöÔ˜íĞü¬ŞöÔˆ†Ã’´
+±
+driver_hourly_statsdriver_ranking"feature_view*Ç
+¦
+driver_hourly_statsdriver_rankingdriver"+
+	conv_rate"Ride booking conversion rate")
+acc_rate"Driver trip acceptance rate"4
+avg_daily_trips"Average completed trips per day*
+tiertier-1*
+teamdispatch_ops2€õ$:¢event_timestamp*createdZdata/driver_stats.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢driver_stats_source’ÍÏöÔ°¸ôõ"ÍÏöÔ€íş³@b
+	driver_id’latest
+ÍÏöÔà»û¶ÍÏöÔà»û¶2ÍÏöÔ˜¨­¹B$70647652-efc9-4ac7-9804-d5e41019c3a3

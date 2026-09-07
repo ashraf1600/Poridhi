@@ -1,0 +1,64 @@
+services:
+  # 1. Redis In-Memory Online Store
+  redis:
+    image: redis:7.2-alpine
+    container_name: feast-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-storage:/data
+    networks:
+      - feast-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  # 2. Feast Feature Server (REST Serving API)
+  feast-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: feast-server
+    command: ["serve"]
+    environment:
+      - MATERIALIZE=true
+    ports:
+      - "6566:6566"
+    volumes:
+      - ./feature_repo:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - feast-net
+    restart: unless-stopped
+
+  # 3. Feast Web UI (Catalog Dashboard)
+  feast-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: feast-ui
+    command: ["sh", "-c", "pip install grpcio grpcio-health-checking grpcio-reflection && /usr/local/bin/entrypoint.sh ui"]
+    environment:
+      - MATERIALIZE=false
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./feature_repo:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - feast-net
+    restart: unless-stopped
+
+networks:
+  feast-net:
+    driver: bridge
+
+volumes:
+  redis-storage:

@@ -1,0 +1,68 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="feast-arch" name="Feast Architecture">
+    <mxGraphModel dx="1200" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Dockerizing Feast: Local Feature Store" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="250" y="40" width="550" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Environment Container -->
+        <mxCell id="docker_env" value="Docker Environment" style="rounded=1;whiteSpace=wrap;html=1;arcSize=4;fillColor=#F9FAFB;strokeColor=#9CA3AF;strokeWidth=1.5;verticalAlign=top;fontStyle=0;fontSize=15;fontColor=#374151;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="120" width="580" height="480" as="geometry" />
+        </mxCell>
+
+        <!-- Left Components -->
+        <mxCell id="client" value="Client / ML Model" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#E9D5FF;strokeColor=#C084FC;strokeWidth=1.5;fontColor=#1F2937;fontStyle=1;fontSize=14;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="50" y="180" width="180" height="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="browser" value="Web Browser" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#E9D5FF;strokeColor=#C084FC;strokeWidth=1.5;fontColor=#1F2937;fontStyle=1;fontSize=14;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="50" y="480" width="180" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Inside Docker -->
+        <mxCell id="feast_server" value="Feast Server&#xa;(Port 6566)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#BFDBFE;strokeColor=#93C5FD;strokeWidth=1.5;fontColor=#1F2937;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="540" y="160" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="parquet" value="Parquet&#xa;Offline Store" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#E9D5FF;strokeColor=#C084FC;strokeWidth=1.5;fontColor=#1F2937;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="410" y="320" width="150" height="95" as="geometry" />
+        </mxCell>
+
+        <mxCell id="redis" value="Redis&#xa;Online Store&#xa;(Port 6379)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#E9D5FF;strokeColor=#C084FC;strokeWidth=1.5;fontColor=#1F2937;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="750" y="320" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="feast_ui" value="Feast UI&#xa;(Port 8888)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#BFDBFE;strokeColor=#93C5FD;strokeWidth=1.5;fontColor=#1F2937;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="550" y="485" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="arrow1" value="HTTP Request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1F2937;strokeWidth=1.5;fontSize=12;labelBackgroundColor=#F3F4F6;" edge="1" parent="1" source="client" target="feast_server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arrow2" value="Fetch Features" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=4 4;strokeColor=#1F2937;strokeWidth=1.5;fontSize=12;labelBackgroundColor=#F3F4F6;" edge="1" parent="1" source="feast_server" target="redis">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow3" value="Materialization" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=4 4;strokeColor=#1F2937;strokeWidth=1.5;fontSize=12;labelBackgroundColor=#F3F4F6;" edge="1" parent="1" source="parquet" target="redis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arrow4" value="Catalog View" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1F2937;strokeWidth=1.5;fontSize=12;labelBackgroundColor=#F3F4F6;" edge="1" parent="1" source="browser" target="feast_ui">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
