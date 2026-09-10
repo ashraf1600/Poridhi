@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: #FFFFFF;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1240px;
+    height: 680px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas {
+    position: relative;
+    width: 1240px;
+    height: 680px;
+    background: #FFFFFF;
+  }
+
+  /* Cards styling */
+  .card {
+    position: absolute;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 14px 18px;
+  }
+
+  .card-purple {
+    background-color: #E2CCF7;
+  }
+  .card-blue {
+    background-color: #C0D8FA;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 10px;
+    line-height: 1.25;
+  }
+  .card-subtitle {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #111827;
+    margin-top: 3px;
+    line-height: 1.2;
+  }
+
+  /* External Actors (Left) */
+  #client-card {
+    left: 45px;
+    top: 95px;
+    width: 195px;
+    height: 135px;
+  }
+  #browser-card {
+    left: 45px;
+    top: 465px;
+    width: 195px;
+    height: 135px;
+  }
+
+  /* Docker Environment Container (Right) */
+  #docker-box {
+    position: absolute;
+    left: 440px;
+    top: 35px;
+    width: 760px;
+    height: 610px;
+    background-color: #EDF1F3;
+    border: 1.5px solid #D5DEE5;
+    border-radius: 28px;
+  }
+  .docker-title {
+    position: absolute;
+    top: 24px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.2px;
+  }
+
+  /* Services inside Docker */
+  #feast-server {
+    left: 705px;
+    top: 95px;
+    width: 230px;
+    height: 135px;
+  }
+  #feast-ui {
+    left: 705px;
+    top: 465px;
+    width: 230px;
+    height: 135px;
+  }
+  #parquet-store {
+    left: 475px;
+    top: 262px;
+    width: 225px;
+    height: 135px;
+  }
+  #sqlite-store {
+    left: 940px;
+    top: 262px;
+    width: 225px;
+    height: 135px;
+  }
+
+  /* SVG Overlay for Arrows and Connectors */
+  svg.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1240px;
+    height: 680px;
+  }
+
+  .line-label {
+    font-size: 14px;
+    font-weight: 600;
+    fill: #1E293B;
+    text-anchor: middle;
+    letter-spacing: -0.1px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .mat-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    fill: #1E293B;
+    text-anchor: middle;
+    letter-spacing: -0.1px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .registry-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    fill: #111827;
+    text-anchor: middle;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .registry-sub {
+    font-size: 13px;
+    font-weight: 500;
+    fill: #334155;
+    text-anchor: middle;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas">
+  <!-- Outer Docker Box -->
+  <div id="docker-box">
+    <div class="docker-title">Docker Environment</div>
+  </div>
+
+  <!-- Left Side: External Actors -->
+  <!-- 1. Client / ML Model -->
+  <div id="client-card" class="card card-purple">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="13" y="13" width="22" height="22" rx="4" fill="none"/>
+      <rect x="19" y="19" width="10" height="10" rx="2" fill="none"/>
+      <!-- Pins -->
+      <line x1="18" y1="7" x2="18" y2="13"/>
+      <line x1="24" y1="7" x2="24" y2="13"/>
+      <line x1="30" y1="7" x2="30" y2="13"/>
+      <line x1="18" y1="35" x2="18" y2="41"/>
+      <line x1="24" y1="35" x2="24" y2="41"/>
+      <line x1="30" y1="35" x2="30" y2="41"/>
+      <line x1="7" y1="18" x2="13" y2="18"/>
+      <line x1="7" y1="24" x2="13" y2="24"/>
+      <line x1="7" y1="30" x2="13" y2="30"/>
+      <line x1="35" y1="18" x2="41" y2="18"/>
+      <line x1="35" y1="24" x2="41" y2="24"/>
+      <line x1="35" y1="30" x2="41" y2="30"/>
+    </svg>
+    <div class="card-title">Client / ML Model</div>
+  </div>
+
+  <!-- 2. Web Browser -->
+  <div id="browser-card" class="card card-purple">
+    <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="11" width="34" height="26" rx="5" fill="none"/>
+      <line x1="7" y1="19" x2="41" y2="19"/>
+      <circle cx="12.5" cy="15" r="1.5" fill="#1E293B"/>
+      <circle cx="17.5" cy="15" r="1.5" fill="#1E293B"/>
+      <circle cx="22.5" cy="15" r="1.5" fill="#1E293B"/>
+    </svg>
+    <div class="card-title">Web Browser</div>
+  </div>
+
+  <!-- Inside Docker Services -->
+  <!-- 3. Feast Server -->
+  <div id="feast-server" class="card card-blue">
+    <svg width="46" height="42" viewBox="0 0 48 44" fill="none" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="6" width="30" height="12" rx="3" fill="none"/>
+      <circle cx="14.5" cy="12" r="1.5" fill="#1E293B"/>
+      <line x1="20" y1="12" x2="33" y2="12"/>
+      <rect x="9" y="21" width="30" height="12" rx="3" fill="none"/>
+      <circle cx="14.5" cy="27" r="1.5" fill="#1E293B"/>
+      <line x1="20" y1="27" x2="33" y2="27"/>
+      <line x1="24" y1="33" x2="24" y2="37"/>
+      <line x1="18" y1="37" x2="30" y2="37"/>
+    </svg>
+    <div class="card-title">Feast Server</div>
+    <div class="card-subtitle">(Port 6566)</div>
+  </div>
+
+  <!-- 4. Feast UI -->
+  <div id="feast-ui" class="card card-blue">
+    <svg width="44" height="42" viewBox="0 0 48 44" fill="none" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="7" width="32" height="28" rx="4" fill="none"/>
+      <line x1="8" y1="15" x2="40" y2="15"/>
+      <polyline points="14,28 20,22 27,25 34,19" fill="none" stroke-width="2.4"/>
+      <circle cx="14" cy="28" r="2" fill="#1E293B"/>
+      <circle cx="20" cy="22" r="2" fill="#1E293B"/>
+      <circle cx="27" cy="25" r="2" fill="#1E293B"/>
+      <circle cx="34" cy="19" r="2" fill="#1E293B"/>
+    </svg>
+    <div class="card-title">Feast UI</div>
+    <div class="card-subtitle">(Port 8888)</div>
+  </div>
+
+  <!-- 5. Parquet Offline Store -->
+  <div id="parquet-store" class="card card-purple">
+    <svg width="42" height="46" viewBox="0 0 48 50" fill="none" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="24" cy="12" rx="15" ry="6"/>
+      <path d="M 9 12 V 23 C 9 26.5 15.7 29 24 29 C 32.3 29 39 26.5 39 23 V 12"/>
+      <path d="M 9 23 V 34 C 9 37.5 15.7 40 24 40 C 32.3 40 39 37.5 39 34 V 23"/>
+    </svg>
+    <div class="card-title">Parquet Offline Store</div>
+    <div class="card-subtitle">(driver_stats.parquet)</div>
+  </div>
+
+  <!-- 6. SQLite Online Store -->
+  <div id="sqlite-store" class="card card-purple">
+    <svg width="42" height="46" viewBox="0 0 48 50" fill="none" stroke="#1E293B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="24" cy="12" rx="15" ry="6"/>
+      <path d="M 9 12 V 23 C 9 26.5 15.7 29 24 29 C 32.3 29 39 26.5 39 23 V 12"/>
+      <path d="M 9 23 V 34 C 9 37.5 15.7 40 24 40 C 32.3 40 39 37.5 39 34 V 23"/>
+    </svg>
+    <div class="card-title">SQLite Online Store</div>
+    <div class="card-subtitle">(online_store.db)</div>
+  </div>
+
+  <!-- SVG Overlay for Arrows, Connectors, and Schema Center -->
+  <svg class="overlay" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1E293B"/>
+      </marker>
+    </defs>
+
+    <!-- 1. Client -> Feast Server -->
+    <path d="M 240 162.5 L 705 162.5" stroke="#1E293B" stroke-width="2" stroke-dasharray="6,5" fill="none" marker-end="url(#arrow)"/>
+    <text x="340" y="146" class="line-label">HTTP Request</text>
+
+    <!-- 2. Web Browser -> Feast UI -->
+    <path d="M 240 532.5 L 705 532.5" stroke="#1E293B" stroke-width="2" stroke-dasharray="6,5" fill="none" marker-end="url(#arrow)"/>
+    <text x="340" y="516" class="line-label">Catalog View</text>
+
+    <!-- 3. Parquet -> Materialization -> SQLite -->
+    <!-- Horizontal dashed line between Parquet and SQLite -->
+    <path d="M 700 329.5 L 940 329.5" stroke="#1E293B" stroke-width="2" stroke-dasharray="6,5" fill="none" marker-end="url(#arrow)"/>
+
+    <!-- 4. Feast Server -> Fetch Features -> SQLite -->
+    <path d="M 935 162.5 L 1052.5 162.5 L 1052.5 262" stroke="#1E293B" stroke-width="2" stroke-dasharray="6,5" fill="none" marker-end="url(#arrow)"/>
+    <text x="1070" y="202" class="line-label" style="text-anchor: start;">Fetch</text>
+    <text x="1070" y="220" class="line-label" style="text-anchor: start;">Features</text>
+
+    <!-- 5. Vertical light connector lines for Schema Registry -->
+    <!-- From Feast Server (y=230) to top of Document Icon (y=252) -->
+    <line x1="820" y1="230" x2="820" y2="252" stroke="#CBD5E1" stroke-width="1.5"/>
+    <!-- From bottom of (registry.db) text (y=386) to Feast UI (y=465) -->
+    <line x1="820" y1="390" x2="820" y2="465" stroke="#CBD5E1" stroke-width="1.5"/>
+
+    <!-- 6. Schema Center Items -->
+    <!-- Document + DB discs icon centered around x=820, y=252 to 290 -->
+    <g transform="translate(802, 252)" stroke="#1E293B" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 6 4 H 20 L 27 11 V 34 C 27 35.5 25.5 37 24 37 H 6 C 4.5 37 3 35.5 3 34 V 7 C 3 5.5 4.5 4 6 4 Z"/>
+      <polyline points="20,4 20,11 27,11"/>
+      <line x1="8" y1="16" x2="16" y2="16"/>
+      <line x1="8" y1="21" x2="18" y2="21"/>
+      <line x1="8" y1="26" x2="14" y2="26"/>
+      <ellipse cx="26" cy="25" rx="6" ry="2.4"/>
+      <path d="M 20 25 V 29 C 20 30.3 22.7 31.4 26 31.4 C 29.3 31.4 32 30.3 32 29 V 25"/>
+      <path d="M 20 29 V 33 C 20 34.3 22.7 35.4 26 35.4 C 29.3 35.4 32 34.3 32 33 V 29"/>
+    </g>
+
+    <!-- Materialization text above dashed line -->
+    <text x="820" y="316" class="mat-label">Materialization</text>
+
+    <!-- Schema Registry text below dashed line -->
+    <text x="820" y="358" class="registry-title">Schema Registry</text>
+    <text x="820" y="376" class="registry-sub">(registry.db)</text>
+  </svg>
+
+</div>
+
+</body>
+</html>
