@@ -25,7 +25,7 @@ def main():
             cols = [r["values"] for r in data.get("results", [])]
             # cols[0]: driver_id, cols[1]: conv_rate, cols[2]: avg_daily_trips, cols[3]: acc_rate
             
-            print("Connected successfully. Features retrieved from Redis:")
+            print("Connected successfully. Features retrieved from SQLite online store:")
             print("=" * 65)
             print(f"{'DRIVER ID':<12} | {'CONV RATE':<12} | {'ACC RATE':<12} | {'DAILY TRIPS':<12}")
             print("=" * 65)

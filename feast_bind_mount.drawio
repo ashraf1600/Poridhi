@@ -1,0 +1,114 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="feast-bind-mount-light" name="Feast Bind Mount Light Architecture">
+    <mxGraphModel dx="1200" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="750" background="#FFFFFF" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Host Machine Outer Box -->
+        <mxCell id="host_machine" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=3;fillColor=#FFFDF5;strokeColor=#F59E0B;strokeWidth=2.5;verticalAlign=top;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="980" height="600" as="geometry" />
+        </mxCell>
+
+        <!-- Host Machine Tag -->
+        <mxCell id="host_tag" value="Host Machine" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;fillColor=#FFFFFF;strokeColor=#E5E7EB;strokeWidth=1.5;fontColor=#111827;fontStyle=1;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="65" width="130" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Compose Container Box -->
+        <mxCell id="docker_compose_box" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=3;fillColor=#F0F7FF;strokeColor=#3B82F6;strokeWidth=2;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="95" y="130" width="910" height="300" as="geometry" />
+        </mxCell>
+
+        <!-- Docker Compose Tag -->
+        <mxCell id="dc_tag" value="DOCKER COMPOSE" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;fillColor=#1E293B;strokeColor=#1E293B;strokeWidth=1;fontColor=#FFFFFF;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="115" y="115" width="130" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- FEAST Header Row -->
+        <mxCell id="feast_title" value="FEAST" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="120" y="155" width="90" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pill_service" value="Service : Feast Container" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;fontColor=#334155;fontStyle=1;fontSize=11;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="225" y="158" width="160" height="28" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pill_mount" value="Mount : /app/data" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;fontColor=#334155;fontStyle=1;fontSize=11;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="395" y="158" width="130" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- Inner Amber Area -->
+        <mxCell id="inner_amber" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=3;fillColor=#FEF3C7;strokeColor=#FDE68A;strokeWidth=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="115" y="200" width="870" height="215" as="geometry" />
+        </mxCell>
+
+        <!-- Feast SDK / CLI -->
+        <mxCell id="sdk_box" value="&lt;b&gt;Feast SDK / CLI&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px;&quot;&gt;Feature Engineering &amp;amp; Definitions&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;fontColor=#0F172A;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="225" width="280" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Server -->
+        <mxCell id="server_box" value="&lt;b&gt;Feature Server&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px;&quot;&gt;Low-Latency Online Inference Serving&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;fontColor=#0F172A;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="225" width="290" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- /app/data box -->
+        <mxCell id="app_data_box" value="&lt;b&gt;/app/data&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px;&quot;&gt;Internal Container Mount Target&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1.5;fontColor=#0F172A;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="335" width="720" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Dashed arrows inside container -->
+        <mxCell id="sdk_to_data" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=3 3;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1" source="sdk_box" target="app_data_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="290" y="310" />
+              <mxPoint x="330" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="server_to_data" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=3 3;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1" source="server_box" target="app_data_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="725" y="310" />
+              <mxPoint x="690" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Host Storage Container Box -->
+        <mxCell id="host_storage_box" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=4;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="95" y="475" width="910" height="175" as="geometry" />
+        </mxCell>
+
+        <!-- Bind Mount Arrow -->
+        <mxCell id="bind_mount_arrow" value="&lt;b&gt;bind mount&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;dashed=1;dashPattern=4 4;strokeColor=#2563EB;strokeWidth=2;fontColor=#2563EB;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="app_data_box" target="host_storage_box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Host Storage Tag -->
+        <mxCell id="hs_tag" value="HOST STORAGE : ./data/" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;fontColor=#334155;fontStyle=1;fontSize=11;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="115" y="460" width="170" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- Bottom 3 Cards -->
+        <!-- driver_stats.parquet -->
+        <mxCell id="card_parquet" value="&lt;b&gt;driver_stats.parquet&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px;&quot;&gt;Offline Feature Store&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;fontColor=#0F172A;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="520" width="240" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- registry.db -->
+        <mxCell id="card_registry" value="&lt;b&gt;registry.db&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px;&quot;&gt;Metadata &amp;amp; Schema Registry&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;fontColor=#0F172A;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="520" width="250" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- online_store.db -->
+        <mxCell id="card_online" value="&lt;b&gt;online_store.db&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px;&quot;&gt;SQLite Online Store&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;fontColor=#0F172A;fontSize=13;align=center;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="520" width="250" height="85" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

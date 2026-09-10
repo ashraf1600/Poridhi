@@ -1,7 +1,9 @@
-feast[redis]>=0.38.0
+feast>=0.38.0
 pandas>=2.0.0
 pyarrow>=12.0.0
 fastapi>=0.100.0
 uvicorn>=0.22.0
 requests>=2.31.0
 grpcio
+grpcio-health-checking
+grpcio-reflection

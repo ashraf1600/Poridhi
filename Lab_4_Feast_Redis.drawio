@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="lab4-redis" name="Lab4-Feast-Redis">
+    <mxGraphModel dx="1200" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Lab 4 — Feast + Redis Online Store (materialize • push • serve)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=22;fontStyle=1;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="230" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="req" value="Request Sources&#xa;entity_rows {driver_id}" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="stream" value="Stream Sources&#xa;feast push (live)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="batch" value="Batch Resources&#xa;driver_stats.parquet" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="transform" value="Materialize&#xa;incremental + TTL" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="260" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="feast" value="FEAST" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1.5;verticalAlign=top;fontSize=20;fontStyle=1;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="300" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="store" value="Store&#xa;Parquet → Redis" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="170" width="125" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="serve" value="Serve&#xa;SDK + :6566" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="715" y="170" width="125" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="register" value="Register&#xa;registry.db • localhost:6379" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="260" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="NOT_FOUND → impute mean&#xa;p95 &lt; 10 ms (vs SQLite 20-50 ms)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="580" y="360" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="online" value="Online Features&#xa;Redis — real-time inference" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="180" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="offline" value="Offline Features&#xa;Parquet — training" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="330" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="req" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="stream" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="batch" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="transform" target="feast"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="feast" target="online"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="feast" target="offline"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

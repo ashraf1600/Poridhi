@@ -2,27 +2,28 @@
 k
 L
 driver'Unique identifier for rideshare drivers"	driver_idJdriver_ranking
-ÍÏöÔÈÖ¼»­ŞöÔ¡å
+ÍÏöÔÈÖ¼»ÛÏúÔ€øŞz
 D
 %
 __dummy"
 __dummy_idJdriver_ranking
-ÍÏöÔàï·¹­ŞöÔèÖƒ1"$bb2589ed-432b-422a-ae3d-a7c7866500ec*¯éöÔÀœ¦2ƒ
-¥
+ÍÏöÔàï·¹ÛÏúÔ¨Î§}1"$d36ba0ee-b3e2-42c2-8125-4cd215f184bd*ÛÏúÔøÄÁ…2ß
+ï
 driver_hourly_statsdriver_rankingdriver"+
 	conv_rate"Ride booking conversion rate")
 acc_rate"Driver trip acceptance rate"4
-avg_daily_trips"Average completed trips per day*
-teamdispatch_ops*
-tiertier-12€õ$:¡event_timestamp*createdZdata/driver_stats.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢driver_stats_source’¬ŞöÔ¨«Óˆ"­ŞöÔè»­@b
-	driver_id’latestY
-ÍÏöÔà»û¶¯éöÔø±ı
+avg_daily_trips"Average completed trips per day*
+tiertier-1*
+teamdispatch_ops2€õ$:levent_timestamp*createdZdata/driver_stats.parquet¢driver_stats_source’ÛÏúÔˆÎÉ"ÛÏúÔ¸§øo@b
+	driver_id’latestk
+ÍÏöÔà»û¶ÛÏúÔøÏ”w
 ×ÚÑÔ°œ›÷ÎÏöÔ
 ÎÏöÔºÜöÔ
-€Â¯ğ€±ï†0b³event_timestamp*createdZdata/driver_stats.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢driver_stats_sourceªdriver_ranking’ÍÏöÔ°¸ôõ"ÍÏöÔ€íş³Š0
+€Â¯ğ€±ï†
+€±ï†ÍÏúÔ0b³event_timestamp*createdZdata/driver_stats.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢driver_stats_sourceªdriver_ranking’ÍÏöÔ°¸ôõ"ÍÏöÔ€íş³Š/
 
-driver_ranking
-ÍÏöÔ˜íĞü¬ŞöÔˆ†Ã’´
+driver_ranking
+ÍÏöÔ˜íĞüÛÏúÔÈÖÆ’´
 ±
 driver_hourly_statsdriver_ranking"feature_view*Ç
 ¦

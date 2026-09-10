@@ -1,0 +1,9 @@
+﻿{
+  "features": [
+    "driver_hourly_stats:conv_rate",
+    "driver_hourly_stats:acc_rate"
+  ],
+  "entities": {
+    "driver_id": [1001, 1002]
+  }
+}

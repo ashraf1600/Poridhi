@@ -2,8 +2,8 @@ project: driver_ranking
 registry: data/registry.db
 provider: local
 online_store:
-  type: redis
-  connection_string: redis:6379
+  type: sqlite
+  path: data/online_store.db
 offline_store:
   type: file
 entity_key_serialization_version: 3

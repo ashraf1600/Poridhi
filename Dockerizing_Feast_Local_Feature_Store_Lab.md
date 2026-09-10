@@ -1,21 +1,50 @@
-# Dockerizing Feast: Building a Local Feature Store with Docker and Redis
+﻿# Dockerizing Feast: Building a Local Feature Store with Docker and SQLite
 
 ## Introduction
 
-This lab teaches you how to containerize Feast, an open-source feature store, using Docker and Docker Compose. You will construct a local feature store architecture that pairs a file-based Parquet offline store with an in-memory Redis online store, exposing feature vectors through an HTTP REST endpoint and visual catalog.
+This lab teaches you how to containerize Feast, an open-source feature store, using Docker and Docker Compose. You will construct a local feature store architecture that pairs a file-based Parquet offline store with an embedded SQLite online store, exposing feature vectors through an HTTP REST endpoint and visual catalog.
 
-![System Architecture Diagram](images/feast_architecture.png)
+![Figure 1: Feast Local Feature Store Containerized Architecture](images/feast_architecture.png)
+
+```text
++-----------------------------------------------------------------------+
+| Docker Host Machine                                                   |
+|                                                                       |
+|  +-------------------+        +------------------------------------+  |
+|  | Client / ML Model |------->| Container: feast-server            |  |
+|  | (HTTP Requests)   | :6566  | (Serves online features via REST)  |  |
+|  +-------------------+        +------------------+-----------------+  |
+|                                                  |                    |
+|  +-------------------+                           v                    |
+|  | Web Browser       | :8888  +------------------------------------+  |
+|  | (Catalog UI)      |------->| Container: feast-ui                |  |
+|  +-------------------+        | (Interactive Web UI Catalog)       |  |
+|                               +------------------+-----------------+  |
+|                                                  |                    |
+|             Docker Bind Mount (./feature_repo:/app)                   |
+|  +-----------------------------------------------+-----------------+  |
+|  | Host Persistent Storage: ./feature_repo/data/                   |  |
+|  | - driver_stats.parquet   (Offline Historical Batch Data)        |  |
+|  | - registry.db            (Schema and Metadata Registry)         |  |
+|  | - online_store.db        (SQLite Embedded Online Store)         |  |
+|  +-----------------------------------------------------------------+  |
++-----------------------------------------------------------------------+
+```
+
+![Figure 2: Host Machine Bind Mount and Storage Architecture](images/feast_bind_mount.png)
 
 ## Learning Objectives
 
 By the end of this lab, you will be able to:
 
-1. Configure a Feast repository targeting local file storage and containerized Redis instances.
-2. Build an immutable Docker runtime image with Feast and required database drivers.
-3. Orchestrate multi-container systems using Docker Compose health checks and network definitions.
-4. Materialize historical feature data from an offline store to an online store.
-5. Retrieve online feature vectors via the Feast HTTP REST API for real-time model inference.
-6. Validate feature definitions and metadata through the Feast Web UI dashboard.
+1. Configure a Feast repository targeting local Parquet offline storage and SQLite online storage.
+2. Persist database state across container lifecycles using host directory bind mounts.
+3. Build an immutable Docker runtime image with Feast and SQLite support.
+4. Orchestrate container services using Docker Compose.
+5. Materialize historical feature data from Parquet offline storage to SQLite online storage.
+6. Retrieve online feature vectors via the Feast HTTP REST API for real-time model inference.
+7. Inspect the underlying SQLite storage tables and verify data persistence on the host.
+8. Explore feature catalogs and metadata through the Feast Web UI dashboard.
 
 **Prerequisites:** Familiarity with Python, Docker containers, and REST API conventions.
 
@@ -25,7 +54,7 @@ You join the machine learning platform team at an on-demand logistics company. T
 
 Currently, data scientists calculate features in Jupyter notebooks using batch queries against data lakes, while production engineers re-implement feature computation using custom SQL queries on live production databases. This divergence causes training-serving skew, resulting in degraded prediction accuracy when models are deployed to production.
 
-Your task is to build a containerized local feature store using Feast, Parquet, and Redis. This system will serve as a reproducible foundation for feature management across development and production environments.
+Your task is to build a containerized local feature store using Feast, Parquet, and SQLite. This system will serve as a reproducible foundation for feature management across development and production environments, storing all state on the host machine through Docker bind mounts without requiring external in-memory database engines.
 
 ## Environment Setup
 
@@ -55,32 +84,34 @@ Before configuring storage backends, review the project layout. The complete dir
 
 ```text
 feast-docker-lab/
-├── docker-compose.yml          # Multi-container orchestration (Redis, Feast Server, Feast UI)
+├── docker-compose.yml          # Multi-container orchestration (Feast Server, Feast UI)
 ├── Dockerfile                  # Feast custom runtime container definition
 ├── requirements.txt            # Python package dependencies
 ├── entrypoint.sh               # Container startup and feature materialization script
-├── test_client.py              # Script to query real-time online features from Redis
+├── inspect_sqlite.py           # Verification script for SQLite storage inspection
+├── test_client.py              # Script to query real-time online features via REST
 └── feature_repo/
-    ├── feature_store.yaml      # Central Feast storage configuration (Redis + File)
+    ├── feature_store.yaml      # Central Feast storage configuration (SQLite + File)
     ├── features.py             # Feature definitions (Entity, FileSource, FeatureView)
     ├── generate_data.py        # Python script to generate sample Parquet data
     └── data/
         ├── driver_stats.parquet # Historical batch dataset (Offline store)
-        └── registry.db         # Metadata registry database tracking schemas
+        ├── registry.db         # Metadata registry database tracking schemas
+        └── online_store.db     # SQLite database for low-latency online serving
 ```
 
 ### 1.2 What You Will Build
 
-You will configure Feast to persist metadata in a SQLite registry, read historical data from local Parquet files, and write online features to a containerized Redis instance.
+You will configure Feast to persist metadata in a SQLite registry, read historical data from local Parquet files, and write online features directly to a local SQLite database stored on the host filesystem via a Docker bind mount.
 
-### 1.3 Think First: Container Network Resolution
+### 1.3 Think First: Embedded Storage vs Daemon Stores
 
-When Feast runs in a Docker container alongside a Redis container, what hostname should Feast use to connect to Redis?
+Why is SQLite chosen for local development and testing rather than a standalone database service?
 
 <details>
 <summary>Click to review</summary>
 
-Containers running in the same Docker bridge network communicate using service names defined in `docker-compose.yml`. Feast must connect to `redis:6379`, not `localhost:6379`, because `localhost` inside a container refers to the container itself.
+SQLite is an embedded, serverless database engine that writes directly to disk files. It eliminates network configuration overhead, consumes minimal memory, and requires no auxiliary background daemon processes. For local developer environments, CI pipelines, and unit tests, SQLite provides full feature store functionality with zero infrastructure complexity.
 
 </details>
 
@@ -93,8 +124,8 @@ project: driver_ranking
 registry: data/registry.db
 provider: ___                # Q1: What provider type indicates non-cloud execution?
 online_store:
-  type: ___                  # Q2: Which key-value store engine are you deploying?
-  connection_string: ___:6379 # Q3: Which hostname resolves to the Redis container?
+  type: ___                  # Q2: Which embedded database engine are you deploying?
+  path: data/online_store.db # Target SQLite file path relative to repo root
 offline_store:
   type: file
 entity_key_serialization_version: 3
@@ -102,9 +133,8 @@ entity_key_serialization_version: 3
 
 **Hints:**
 
-- Q1: For local filesystem execution without AWS or GCP plugins, use `local`.
-- Q2: The target in-memory online store is `redis`.
-- Q3: The service name assigned to Redis in Docker Compose will be `redis`.
+- Q1: For local filesystem execution without cloud provider plugins, use `local`.
+- Q2: The target embedded file-based online store is `sqlite`.
 
 <details>
 <summary>Click to see solution</summary>
@@ -114,8 +144,8 @@ project: driver_ranking
 registry: data/registry.db
 provider: local
 online_store:
-  type: redis
-  connection_string: redis:6379
+  type: sqlite
+  path: data/online_store.db
 offline_store:
   type: file
 entity_key_serialization_version: 3
@@ -129,10 +159,10 @@ Match each configuration property to its purpose:
 
 | Key               | Purpose (A-D) |
 | ----------------- | ------------- |
-| `registry`      | ___           |
-| `provider`      | ___           |
-| `online_store`  | ___           |
-| `offline_store` | ___           |
+| `registry`        | ___           |
+| `provider`        | ___           |
+| `online_store`    | ___           |
+| `offline_store`   | ___           |
 
 **Options:**
 
@@ -156,8 +186,8 @@ Match each configuration property to its purpose:
 **Self-Assessment:**
 
 - [ ] File `feature_repo/feature_store.yaml` is created.
-- [ ] The `connection_string` points to `redis:6379`.
-- [ ] You can explain why `localhost` will fail inside a containerized setup.
+- [ ] The `online_store.type` is set to `sqlite`.
+- [ ] The `online_store.path` points to `data/online_store.db`.
 
 ---
 
@@ -254,7 +284,7 @@ driver_stats_fv = FeatureView(
         Field(name="acc_rate", dtype=Float32),
         Field(name="avg_daily_trips", dtype=Int64),
     ],
-    online=___,                 # Q3: Set boolean to enable writing to Redis online store
+    online=___,                 # Q3: Set boolean to enable writing to online store
     source=driver_stats_source
 )
 ```
@@ -263,7 +293,7 @@ driver_stats_fv = FeatureView(
 
 - Q1: Matches the ID column in `generate_data.py`: `driver_id`.
 - Q2: The event occurrence timestamp column is `event_timestamp`.
-- Q3: Set to `True` so Feast materializes this view into Redis.
+- Q3: Set to `True` so Feast materializes this view into the SQLite online store.
 
 <details>
 <summary>Click to see solution</summary>
@@ -322,12 +352,12 @@ You will define explicit dependencies in `requirements.txt`, write an `entrypoin
 
 ### 3.2 Think First: Container Entrypoints
 
-Why should registry updates (`feast apply`) occur inside the container entrypoint rather than during the `docker build` phase?
+Why should registry updates (`feast apply`) and materialization occur inside the container entrypoint rather than during the `docker build` phase?
 
 <details>
 <summary>Click to review</summary>
 
-During image build time, external dependencies like the Redis container and mounted volumes are unavailable. Executing `feast apply` and materialization at runtime ensures network connectivity to Redis and access to host-mounted configuration files.
+During image build time, mounted host directories are unavailable. Executing `feast apply` and materialization at runtime ensures access to the host-mounted volume, allowing `data/online_store.db` and `data/registry.db` to persist directly on the host machine.
 
 </details>
 
@@ -336,7 +366,7 @@ During image build time, external dependencies like the Redis container and moun
 Create `requirements.txt`:
 
 ```text
-feast[redis]==0.38.0
+feast>=0.38.0
 pandas>=2.0.0
 pyarrow>=12.0.0
 fastapi>=0.100.0
@@ -357,24 +387,37 @@ set -eo pipefail
 
 cd /app
 
+echo "=================================================="
+echo "Starting Feast Service Container"
+echo "=================================================="
+
+# 1. Generate Parquet data if missing
 if [ ! -f "data/driver_stats.parquet" ]; then
-    echo "Dataset not found. Generating sample data..."
+    echo "Parquet data not found. Generating synthetic dataset..."
     python3 generate_data.py
+else
+    echo "Found existing Parquet dataset."
 fi
 
+# 2. Register Feature Store definitions
 echo "Applying feature definitions to registry..."
 feast apply
 
+# 3. Materialize features into SQLite if requested
 if [ "${MATERIALIZE:-false}" = "true" ]; then
-    echo "Materializing features to Redis online store..."
+    echo "Materializing features to SQLite online store..."
     feast materialize-incremental "$(date -u +"%Y-%m-%dT%H:%M:%S")"
+    echo "Materialization complete."
 fi
 
+# 4. Route commands
 case "$1" in
     "serve")
+        echo "Launching Feast Feature Server on 0.0.0.0:6566..."
         exec feast serve -h 0.0.0.0 -p 6566
         ;;
     "ui")
+        echo "Launching Feast Web Dashboard on 0.0.0.0:8888..."
         exec feast ui -h 0.0.0.0 -p 8888
         ;;
     *)
@@ -409,7 +452,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY feature_repo/ /app/
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -424,28 +468,28 @@ ENTRYPOINT ["entrypoint.sh"]
 
 **Self-Assessment:**
 
-- [ ] `requirements.txt` specifies `feast[redis]` and required `grpcio` packages.
-- [ ] `entrypoint.sh` differentiates between `serve` and `ui` subcommands.
+- [ ] `requirements.txt` specifies `feast>=0.38.0` and required `grpcio` packages.
+- [ ] `entrypoint.sh` differentiates between `serve` and `ui` subcommands without emojis.
 - [ ] `dos2unix` is installed in the Dockerfile to prevent line ending errors on Windows hosts.
 
 ---
 
 ## Chapter 4: Multi-Service Orchestration with Docker Compose
 
-Running a feature store requires multiple decoupled components: a database for the online store, an API server for inference queries, and an administrative user interface.
+Running a complete local feature store platform involves two core interfaces: an API server for low-latency feature serving, and an interactive web user interface for catalog discovery.
 
 ### 4.1 What You Will Build
 
-You will construct a `docker-compose.yml` file defining services for `redis`, `feast-server`, and `feast-ui` using shared networks and container health checks.
+You will construct a `docker-compose.yml` file defining services for `feast-server` and `feast-ui` using a shared network and host bind mount.
 
-### 4.2 Think First: Container Dependencies
+### 4.2 Think First: Bind Mount Persistence
 
-Why is a simple `depends_on: [redis]` block insufficient for the `feast-server` container?
+How does mounting `./feature_repo:/app` solve data persistence across container updates?
 
 <details>
 <summary>Click to review</summary>
 
-Standard `depends_on` only waits until the target container starts, not until the database process inside is ready to accept connections. Using `condition: service_healthy` ensures Redis is answering PING requests before Feast begins materialization.
+Container filesystems are ephemeral by default. When `./feature_repo:/app` is bind-mounted, any writes made by Feast to `/app/data/online_store.db` or `/app/data/registry.db` are written directly to the host machine disk. Even if containers are destroyed with `docker compose down`, all materialized features remain intact on the host.
 
 </details>
 
@@ -455,22 +499,7 @@ Create `docker-compose.yml`:
 
 ```yaml
 services:
-  redis:
-    image: redis:7.2-alpine
-    container_name: feast-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-storage:/data
-    networks:
-      - feast-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 3s
-      timeout: 2s
-      retries: 5
-    restart: unless-stopped
-
+  # 1. Feast Feature Server (REST Serving API)
   feast-server:
     build:
       context: .
@@ -483,28 +512,23 @@ services:
       - "6566:6566"
     volumes:
       - ./feature_repo:/app
-    depends_on:
-      redis:
-        condition: service_healthy
     networks:
       - feast-net
     restart: unless-stopped
 
+  # 2. Feast Web UI (Catalog Dashboard)
   feast-ui:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: feast-ui
-    command: ["sh", "-c", "pip install grpcio grpcio-health-checking grpcio-reflection && /usr/local/bin/entrypoint.sh ui"]
+    command: ["ui"]
     environment:
       - MATERIALIZE=false
     ports:
       - "8888:8888"
     volumes:
       - ./feature_repo:/app
-    depends_on:
-      redis:
-        condition: service_healthy
     networks:
       - feast-net
     restart: unless-stopped
@@ -512,9 +536,6 @@ services:
 networks:
   feast-net:
     driver: bridge
-
-volumes:
-  redis-storage:
 ```
 
 ### 4.4 Test and Verify
@@ -525,15 +546,6 @@ Start all containers in detached mode:
 docker compose up --build -d
 ```
 
-**Predict:** What status will `docker compose ps` report for the Redis container when healthy?
-
-<details>
-<summary>Click to verify</summary>
-
-The status column will display `Up` with `(healthy)`.
-
-</details>
-
 Inspect container statuses:
 
 ```bash
@@ -543,39 +555,55 @@ docker compose ps
 **Expected output:**
 
 ```text
-NAME           IMAGE                         COMMAND                  SERVICE        STATUS                   PORTS
-feast-redis    redis:7.2-alpine              "docker-entrypoint.s…"   redis          Up (healthy)             0.0.0.0:6379->6379/tcp
-feast-server   feast-docker-lab-feast-server "entrypoint.sh serve"    feast-server   Up                       0.0.0.0:6566->6566/tcp
-feast-ui       feast-docker-lab-feast-ui      "entrypoint.sh ui"       feast-ui       Up                       0.0.0.0:8888->8888/tcp
+NAME           IMAGE                COMMAND                SERVICE        CREATED         STATUS                   PORTS
+feast-server   feast-server:latest  "entrypoint.sh serve"  feast-server   5 minutes ago   Up 5 minutes (healthy)   0.0.0.0:6566->6566/tcp, [::]:6566->6566/tcp
+feast-ui       feast-ui:latest      "entrypoint.sh ui"     feast-ui       5 minutes ago   Up 5 minutes             0.0.0.0:8888->8888/tcp, [::]:8888->8888/tcp
 ```
 
-![Screenshot 1: Docker Compose Status](images/ss1_docker_compose_ps.png)
+![Figure 3: Docker Compose Service Status](images/ss1_docker_compose_ps.png)
 
-Inspect server startup logs:
+Inspect server startup and feature materialization logs:
 
 ```bash
 docker compose logs feast-server
 ```
 
-![Screenshot 2: Feast Server Startup and Materialization Logs](images/ss2_feast_server_logs.png)
+![Figure 4: Feast Server Startup and Materialization Logs](images/ss2_feast_server_logs.png)
+
+Verify file persistence on the host machine filesystem:
+
+```powershell
+Get-ChildItem feature_repo\data
+```
+
+![Figure 5: Host Storage File Verification](images/ss3_host_data_files.png)
+
+Inspect the SQLite online store directly on the host using Python:
+
+```bash
+python inspect_sqlite.py
+```
+
+![Figure 6: Direct SQLite Database Inspection](images/ss4_sqlite_inspection.png)
 
 ### 4.5 Checkpoint
 
 **Self-Assessment:**
 
-- [ ] All three containers are running without error exits.
-- [ ] Ports 6379, 6566, and 8888 are mapped to the host system.
-- [ ] Screenshots SS-1 and SS-2 have been gathered.
+- [ ] Both containers (`feast-server` and `feast-ui`) are running without error exits.
+- [ ] Ports 6566 and 8888 are mapped to the host system.
+- [ ] Files `driver_stats.parquet`, `registry.db`, and `online_store.db` exist in `feature_repo/data/`.
+- [ ] Screenshots Figure 3, Figure 4, Figure 5, and Figure 6 have been gathered.
 
 ---
 
 ## Chapter 5: Real-Time Feature Ingestion and Serving
 
-With services active and features materialized into Redis, client applications can query feature vectors using the Feast REST API.
+With services active and features materialized into SQLite, client applications can query feature vectors using the Feast REST API or direct SQL queries.
 
 ### 5.1 What You Will Build
 
-You will query the Feast feature server using `curl`, build a Python test client, and explore the Feast Web UI dashboard.
+You will query the Feast feature server using `curl`, build a Python test client, and explore direct SQLite queries.
 
 ### 5.2 Think First: Query Payloads
 
@@ -589,35 +617,19 @@ What two payload attributes are mandatory when sending a POST request to `/get-o
 
 </details>
 
-### 5.3 Test with cURL
-
-Send an HTTP request to retrieve feature values for driver IDs `1001` and `1002`:
-
-```bash
-curl -X POST http://localhost:6566/get-online-features \
-  -H "Content-Type: application/json" \
-  -d '{
-    "features": [
-      "driver_hourly_stats:conv_rate",
-      "driver_hourly_stats:acc_rate",
-      "driver_hourly_stats:avg_daily_trips"
-    ],
-    "entities": {
-      "driver_id": [1001, 1002]
-    }
-  }'
-```
-
-### 5.4 Test with Python Client
+### 5.3 Test with Python Client
 
 Create `test_client.py`:
 
 ```python
+"""
+Test client to query Feast Feature Server via HTTP POST /get-online-features.
+"""
 import requests
 
 FEAST_URL = "http://localhost:6566/get-online-features"
 
-payload = {
+request_payload = {
     "features": [
         "driver_hourly_stats:conv_rate",
         "driver_hourly_stats:acc_rate",
@@ -628,23 +640,33 @@ payload = {
     }
 }
 
-response = requests.post(FEAST_URL, json=payload)
-data = response.json()
+def main():
+    print(f"Querying Feast Feature Server at {FEAST_URL} ...")
+    try:
+        response = requests.post(FEAST_URL, json=request_payload, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            cols = [r["values"] for r in data.get("results", [])]
+            
+            print("Connected successfully. Features retrieved from SQLite online store:")
+            print("=" * 65)
+            print(f"{'DRIVER ID':<12} | {'CONV RATE':<12} | {'ACC RATE':<12} | {'DAILY TRIPS':<12}")
+            print("=" * 65)
+            
+            for driver_id, conv_rate, daily_trips, acc_rate in zip(*cols):
+                conv_str = f"{conv_rate:<12.4f}" if conv_rate is not None else f"{'None':<12}"
+                acc_str = f"{acc_rate:<12.4f}" if acc_rate is not None else f"{'None':<12}"
+                trips_str = f"{daily_trips:<12}" if daily_trips is not None else f"{'None':<12}"
+                print(f"{driver_id:<12} | {conv_str} | {acc_str} | {trips_str}")
+                
+            print("=" * 65)
+        else:
+            print(f"Error {response.status_code}: {response.text}")
+    except requests.exceptions.ConnectionError:
+        print("Could not connect to Feast Server. Ensure docker compose is running.")
 
-cols = [r["values"] for r in data.get("results", [])]
-
-print("Connected successfully. Features retrieved from Redis:")
-print("=" * 65)
-print(f"{'DRIVER ID':<12} | {'CONV RATE':<12} | {'ACC RATE':<12} | {'DAILY TRIPS':<12}")
-print("=" * 65)
-
-for driver_id, conv_rate, daily_trips, acc_rate in zip(*cols):
-    conv_str = f"{conv_rate:<12.4f}" if conv_rate is not None else f"{'None':<12}"
-    acc_str = f"{acc_rate:<12.4f}" if acc_rate is not None else f"{'None':<12}"
-    trips_str = f"{daily_trips:<12}" if daily_trips is not None else f"{'None':<12}"
-    print(f"{driver_id:<12} | {conv_str} | {acc_str} | {trips_str}")
-
-print("=" * 65)
+if __name__ == "__main__":
+    main()
 ```
 
 Execute the test client:
@@ -653,54 +675,119 @@ Execute the test client:
 python test_client.py
 ```
 
-**Expected output:**
+![Figure 7: Python Client Feature Retrieval Output](images/ss5_python_client_output.png)
 
-```text
-Querying Feast Feature Server at http://localhost:6566/get-online-features ...
-Connected successfully. Features retrieved from Redis:
-=================================================================
-DRIVER ID    | CONV RATE    | ACC RATE     | DAILY TRIPS 
-=================================================================
-1001         | 0.4809       | 0.9708       | 75    
-1002         | 0.8116       | 0.8757       | 49    
-1003         | 0.9288       | 0.9754       | 53    
-1004         | 0.7189       | 0.8543       | 55    
-1005         | 0.2532       | 0.7547       | 28    
-=================================================================
+### 5.4 Test with cURL REST API
+
+Create a sample request file `request.json`:
+
+```json
+{
+  "features": [
+    "driver_hourly_stats:conv_rate",
+    "driver_hourly_stats:acc_rate"
+  ],
+  "entities": {
+    "driver_id": [1001, 1002]
+  }
+}
 ```
 
-![Screenshot 3: Python Client Feature Retrieval Output](images/ss3_python_client_output.png)
+Send the HTTP request using cURL:
 
-### 5.5 Inspect Feature Store Catalog
+```bash
+curl.exe -s -X POST http://localhost:6566/get-online-features -H "Content-Type: application/json" -d @request.json
+```
+
+![Figure 8: REST API Query via cURL Output](images/ss6_curl_rest_api.png)
+
+### 5.5 Direct SQLite Table Query
+
+To verify how Feast internally organizes feature tables inside SQLite, open the database using `sqlite3`:
+
+```bash
+sqlite3 feature_repo/data/online_store.db
+```
+
+Execute SQL commands to examine tables and sample data:
+
+```sql
+.tables
+SELECT entity_key, feature_name, value FROM driver_ranking_driver_hourly_stats LIMIT 3;
+```
+
+![Figure 9: SQLite3 Command Line Table Query](images/ss10_sqlite_table_query.png)
+
+---
+
+## Chapter 6: Feast Web UI and Metadata Catalog Exploration
+
+The Feast Web UI provides a centralized catalog for data scientists and ML engineers to browse entities, feature views, schemas, and source definitions.
+
+### 6.1 Inspect Feature Store Catalog
 
 Open your web browser and navigate to `http://localhost:8888`. Verify that:
 
-1. The `driver` entity is registered.
-2. The `driver_hourly_stats` feature view displays properties for `conv_rate`, `acc_rate`, and `avg_daily_trips`.
-3. The underlying data source references `data/driver_stats.parquet`.
+1. The project name `driver_ranking` is visible.
+2. The `driver` entity is registered.
+3. The `driver_hourly_stats` feature view displays properties for `conv_rate`, `acc_rate`, and `avg_daily_trips`.
+4. The underlying data source references `data/driver_stats.parquet`.
 
-![Screenshot 4: Feast Web UI Catalog Dashboard](images/ss4_feast_web_ui.png)
+![Figure 10: Feast Web UI Catalog Dashboard](images/ss7_feast_web_ui.png)
 
-### 5.6 Experiment: Handling Unseen Entities
+### 6.2 Inspect Registered Entities via CLI
 
-Query Feast for an entity ID that does not exist in the offline dataset:
+You can also inspect registered Feast entities from the command line:
 
 ```bash
-curl -X POST http://localhost:6566/get-online-features \
-  -H "Content-Type: application/json" \
-  -d '{"features": ["driver_hourly_stats:conv_rate"], "entities": {"driver_id": [9999]}}'
+docker exec feast-server feast entities list
 ```
 
-**Observe:** Feast returns the result with status `NOT_FOUND` and null values.
+![Figure 11: Feast CLI Registered Entities List](images/ss8_feast_entities_list.png)
 
-**Question:** How should an inference pipeline handle `NOT_FOUND` statuses in production?
+### 6.3 Inspect Registered Feature Views via CLI
 
-<details>
-<summary>Click to review</summary>
+List registered feature views and verify the online store backend:
 
-Production inference pipelines must implement defensive handling for missing values, such as imputing global feature averages or executing fallback business logic, to prevent downstream model calculation failures.
+```bash
+docker exec feast-server feast feature-views list
+```
 
-</details>
+![Figure 12: Feast CLI Registered Feature Views List](images/ss9_feast_feature_views_list.png)
+
+---
+
+## Chapter 7: Architectural Evaluation: SQLite vs Redis
+
+Choosing an online store backend depends on system latency requirements, deployment topology, and operational overhead:
+
+| Dimension | SQLite Online Store | Redis Online Store |
+| :--- | :--- | :--- |
+| **Architecture** | Serverless embedded file database | Dedicated in-memory caching daemon |
+| **Deployment Complexity** | Zero infrastructure overhead (single `.db` file) | Requires separate container, network, and healthcheck |
+| **Persistence Model** | Immediate disk write via Docker bind mount | In-memory with optional append-only file (AOF/RDB) |
+| **Read Latency** | Low (approx 2 to 5 milliseconds) | Sub-millisecond (approx 0.5 to 1 millisecond) |
+| **Concurrent Writes** | Limited by SQLite database file locking | Highly concurrent non-blocking single-threaded engine |
+| **Optimal Use Case** | Local development, testing, edge devices, single-node | High-throughput distributed production clusters |
+
+---
+
+## Chapter 8: Troubleshooting Guide
+
+### 8.1 Database File Locking (`OperationalError: database is locked`)
+
+- **Cause:** SQLite uses file-level locking during write operations. Concurrent `feast materialize` executions can result in lock contention.
+- **Remedy:** Ensure only one container performs materialization at a time. In `docker-compose.yml`, set `MATERIALIZE=true` only on `feast-server`, keeping `MATERIALIZE=false` on `feast-ui`.
+
+### 8.2 Bind Mount Permission Denied on Linux Hosts
+
+- **Cause:** Docker runs container processes as root by default, creating root-owned files on host directories.
+- **Remedy:** Pass user identifier to compose or run `chmod -R 777 feature_repo/data` during local setup.
+
+### 8.3 Missing Parquet Dataset
+
+- **Cause:** Container started before `data/driver_stats.parquet` was generated.
+- **Remedy:** The `entrypoint.sh` automatically checks for `driver_stats.parquet` and runs `python3 generate_data.py` if the file does not exist.
 
 ---
 
@@ -708,39 +795,37 @@ Production inference pipelines must implement defensive handling for missing val
 
 Your containerized Feast architecture is running and functional:
 
-| Service          | Port | Endpoint / Role                             | Engine          |
-| ---------------- | ---- | ------------------------------------------- | --------------- |
-| `feast-server` | 6566 | `POST /get-online-features` (Serving API) | FastAPI / Redis |
-| `feast-ui`     | 8888 | `GET /` (Web Catalog Dashboard)           | Feast UI        |
-| `redis`        | 6379 | In-memory key-value online store            | Redis 7.2       |
+| Service | Port | Endpoint / Role | Engine |
+| :--- | :--- | :--- | :--- |
+| `feast-server` | 6566 | `POST /get-online-features` (Serving API) | FastAPI / SQLite |
+| `feast-ui` | 8888 | `GET /` (Web Catalog Dashboard) | Feast UI |
 
 ### Complete End-to-End Verification Sequence
 
 ```bash
 docker compose ps
-curl http://localhost:6566/get-online-features -H "Content-Type: application/json" -d '{"features": ["driver_hourly_stats:conv_rate"], "entities": {"driver_id": [1001]}}'
+curl http://localhost:6566/get-online-features -H "Content-Type: application/json" -d "{\"features\": [\"driver_hourly_stats:conv_rate\"], \"entities\": {\"driver_id\": [1001]}}"
 curl -I http://localhost:8888/
 ```
 
-![Screenshot 5: Feast Entities Registered in Registry](images/ss5_feast_entities_list.png)
-
 ## The Principles
 
-1. **Decouple Offline Processing from Online Serving:** Use column-oriented storage formats (Parquet) for batch model training and in-memory key-value stores (Redis) for low-latency inference.
+1. **Decouple Offline Processing from Online Serving:** Use column-oriented storage formats (Parquet) for batch model training and low-latency structured stores (SQLite or Redis) for online inference.
 2. **Treat Features as Code:** Maintain entity and feature view definitions in version-controlled repositories to prevent training-serving skew.
-3. **Synchronize via Deterministic Materialization:** Ingest historical metrics into online storage using explicit timestamps to avoid serving future observations.
-4. **Enforce Container Readiness:** Configure Docker health checks to prevent dependent services from starting before backing datastores are ready to accept connections.
+3. **Synchronize via Deterministic Materialization:** Ingest historical metrics into online storage using explicit timestamp watermarks to avoid serving future observations.
+4. **Guarantee Host Persistence with Bind Mounts:** Mount host repository directories into containers to retain database schemas and materialized features across rebuild cycles.
 
 ## Conclusion
 
-In this lab, you successfully containerized Feast to construct a local, production-grade feature store architecture using Docker and Redis. By decoupling the file-based Parquet offline store from the in-memory Redis online store, you established a dual-tier storage pattern optimized for both batch training datasets and sub-millisecond real-time inference.
+In this lab, you containerized Feast to construct a local, production-grade feature store architecture using Docker, SQLite, and host bind mounts. By pairing a local Parquet offline store with an embedded SQLite online store, you established a complete dual-tier feature store pattern with zero external daemon dependencies.
 
 Key accomplishments from this implementation include:
 
 - **Unified Feature Definitions:** Declared immutable entities, sources, and feature views as version-controlled Python code, preventing training-serving skew across teams.
-- **Multi-Container Orchestration:** Built a custom Docker image and orchestrated services using Docker Compose health checks and automated startup scripts.
-- **Deterministic Materialization:** Synchronized historical batch observations from Parquet files into Redis using explicit timestamp watermarks.
-- **Low-Latency Feature Serving:** Queried the Feast HTTP REST API to retrieve online feature vectors for live model inference and defensive validation.
-- **Metadata Governance:** Inspected registered entities, feature schemas, and storage backends using the interactive Feast Web UI catalog.
+- **Host Storage Persistence:** Persisted historical Parquet files, metadata registry tables, and SQLite online feature records directly on the host machine using Docker bind mounts.
+- **Automated Lifecycle Management:** Built a custom Docker image and orchestrated services using Docker Compose and an automated entrypoint script.
+- **Deterministic Materialization:** Synchronized historical batch observations from Parquet files into SQLite using explicit timestamp watermarks.
+- **Low-Latency Feature Serving:** Queried the Feast HTTP REST API and direct SQLite tables to retrieve online feature vectors for live model inference.
+- **Metadata Governance:** Inspected registered entities, feature schemas, and storage backends using the interactive Feast Web UI catalog and Feast CLI tools.
 
-This containerized setup provides a reproducible, portable foundation that can be transitioned to cloud-scale MLOps deployments utilizing managed databases, object stores, and Kubernetes clusters.
+This containerized setup provides a reproducible, lightweight, and portable foundation that can be transitioned to cloud-scale MLOps deployments utilizing managed databases, object stores, and Kubernetes clusters.
