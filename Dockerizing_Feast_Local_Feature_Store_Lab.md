@@ -31,7 +31,7 @@ This lab teaches you how to containerize Feast, an open-source feature store, us
 +-----------------------------------------------------------------------+
 ```
 
-![Figure 2: Host Machine Bind Mount and Storage Architecture](images/feast_bind_mount.png)
+
 
 ## Learning Objectives
 
