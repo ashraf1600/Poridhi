@@ -6,32 +6,6 @@ This lab teaches you how to containerize Feast, an open-source feature store, us
 
 ![Figure 1: Feast Local Feature Store Containerized Architecture](images/feast_architecture.png)
 
-```text
-+-----------------------------------------------------------------------+
-| Docker Host Machine                                                   |
-|                                                                       |
-|  +-------------------+        +------------------------------------+  |
-|  | Client / ML Model |------->| Container: feast-server            |  |
-|  | (HTTP Requests)   | :6566  | (Serves online features via REST)  |  |
-|  +-------------------+        +------------------+-----------------+  |
-|                                                  |                    |
-|  +-------------------+                           v                    |
-|  | Web Browser       | :8888  +------------------------------------+  |
-|  | (Catalog UI)      |------->| Container: feast-ui                |  |
-|  +-------------------+        | (Interactive Web UI Catalog)       |  |
-|                               +------------------+-----------------+  |
-|                                                  |                    |
-|             Docker Bind Mount (./feature_repo:/app)                   |
-|  +-----------------------------------------------+-----------------+  |
-|  | Host Persistent Storage: ./feature_repo/data/                   |  |
-|  | - driver_stats.parquet   (Offline Historical Batch Data)        |  |
-|  | - registry.db            (Schema and Metadata Registry)         |  |
-|  | - online_store.db        (SQLite Embedded Online Store)         |  |
-|  +-----------------------------------------------------------------+  |
-+-----------------------------------------------------------------------+
-```
-
-
 
 ## Learning Objectives
 
