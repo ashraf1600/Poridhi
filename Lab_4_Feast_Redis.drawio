@@ -1,51 +1,115 @@
 <mxfile host="app.diagrams.net">
-  <diagram id="lab4-redis" name="Lab4-Feast-Redis">
-    <mxGraphModel dx="1200" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="700" math="0" shadow="0">
+  <diagram id="lab4-redis-arch" name="Feast Redis Architecture">
+    <mxGraphModel dx="1360" dy="760" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1360" pageHeight="760" background="#FFFFFF" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" value="Lab 4 — Feast + Redis Online Store (materialize • push • serve)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=22;fontStyle=1;fontColor=#111827;" vertex="1" parent="1">
-          <mxGeometry x="230" y="20" width="700" height="40" as="geometry" />
+
+        <!-- Docker Environment Outer Container -->
+        <mxCell id="docker_env" value="&lt;b style=&quot;font-size: 18px; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto;&quot;&gt;Docker Environment (feast-redis-net)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #64748B;&quot;&gt;Containerized In-Memory Feature Store Infrastructure&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=4;fillColor=#F8FAFC;strokeColor=#E2E8F0;strokeWidth=2;verticalAlign=top;spacingTop=16;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="350" y="30" width="970" height="700" as="geometry" />
         </mxCell>
-        <mxCell id="req" value="Request Sources&#xa;entity_rows {driver_id}" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="120" width="170" height="80" as="geometry" />
+
+        <!-- External Actor 1: Client / ML Model -->
+        <mxCell id="client_model" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Client / ML Model&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #6D28D9;&quot;&gt;Inference Prediction Service&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EDE9FE;strokeColor=#DDD6FE;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="250" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="stream" value="Stream Sources&#xa;feast push (live)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="260" width="170" height="80" as="geometry" />
+
+        <!-- External Actor 2: Streaming Events -->
+        <mxCell id="streaming_events" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Streaming Events&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #15803D;&quot;&gt;Real-Time Feature Updates&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#DCFCE7;strokeColor=#BBF7D0;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="310" width="250" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="batch" value="Batch Resources&#xa;driver_stats.parquet" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="400" width="170" height="80" as="geometry" />
+
+        <!-- External Actor 3: Web Browser -->
+        <mxCell id="web_browser" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Web Browser&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #6D28D9;&quot;&gt;Feature Catalog Explorer&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EDE9FE;strokeColor=#DDD6FE;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="530" width="250" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="transform" value="Materialize&#xa;incremental + TTL" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="300" y="260" width="170" height="80" as="geometry" />
+
+        <!-- Service 1: Feast Feature Server -->
+        <mxCell id="feast_server" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Feast Server&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #0369A1;&quot;&gt;FastAPI REST (Port 6566)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#E0F2FE;strokeColor=#BAE6FD;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="390" y="90" width="260" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="feast" value="FEAST" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1.5;verticalAlign=top;fontSize=20;fontStyle=1;spacingTop=10;" vertex="1" parent="1">
-          <mxGeometry x="560" y="100" width="300" height="400" as="geometry" />
+
+        <!-- Store 1: Parquet Offline Store -->
+        <mxCell id="parquet_store" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Parquet Offline Store&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #6D28D9;&quot;&gt;driver_stats.parquet (Batch)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EDE9FE;strokeColor=#DDD6FE;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="390" y="310" width="260" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="store" value="Store&#xa;Parquet → Redis" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="580" y="170" width="125" height="70" as="geometry" />
+
+        <!-- Schema Registry Central Element -->
+        <mxCell id="schema_registry" value="&lt;b style=&quot;font-size: 14.5px;&quot;&gt;Schema Registry&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #475569;&quot;&gt;registry.db (Metadata)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="690" y="310" width="220" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="serve" value="Serve&#xa;SDK + :6566" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="715" y="170" width="125" height="70" as="geometry" />
+
+        <!-- Service 2: Feast Web UI -->
+        <mxCell id="feast_ui" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Feast Web UI&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; color: #0369A1;&quot;&gt;Interactive Catalog (:8888)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#E0F2FE;strokeColor=#BAE6FD;strokeWidth=1.5;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="390" y="530" width="260" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="register" value="Register&#xa;registry.db • localhost:6379" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="580" y="260" width="260" height="80" as="geometry" />
+
+        <!-- Store 2: Redis Online Store (Hero Component) -->
+        <mxCell id="redis_store" value="&lt;b style=&quot;font-size: 17px; color: #991B1B;&quot;&gt;Redis Online Store&lt;/b&gt;&lt;br&gt;&lt;b style=&quot;font-size: 13px; color: #B91C1C;&quot;&gt;redis:6379 (In-Memory)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11.5px; color: #475569;&quot;&gt;Key-Value Cache &amp;bull; TTL Eviction&lt;br&gt;Sub-Millisecond Read Latency&lt;br&gt;Latest Entity Values&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FEE2E2;strokeColor=#FECACA;strokeWidth=2;fontColor=#0F172A;align=center;" vertex="1" parent="1">
+          <mxGeometry x="960" y="250" width="320" height="240" as="geometry" />
         </mxCell>
-        <mxCell id="note" value="NOT_FOUND → impute mean&#xa;p95 &lt; 10 ms (vs SQLite 20-50 ms)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontColor=#374151;" vertex="1" parent="1">
-          <mxGeometry x="580" y="360" width="260" height="50" as="geometry" />
+
+        <!-- Metadata Connection Lines -->
+        <mxCell id="meta_up" value="" style="endArrow=none;html=1;strokeColor=#CBD5E1;strokeWidth=1.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="800" y="310" as="sourcePoint" />
+            <mxPoint x="800" y="230" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="online" value="Online Features&#xa;Redis — real-time inference" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="950" y="180" width="180" height="90" as="geometry" />
+        <mxCell id="meta_down" value="" style="endArrow=none;html=1;strokeColor=#CBD5E1;strokeWidth=1.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="800" y="450" as="sourcePoint" />
+            <mxPoint x="800" y="530" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="offline" value="Offline Features&#xa;Parquet — training" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="950" y="330" width="180" height="90" as="geometry" />
+
+        <!-- Flow 1: Client -> Feast Server (POST :6566) -->
+        <mxCell id="flow_client" value="&lt;b&gt;POST&lt;/b&gt;&lt;br&gt;:6566" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F172A;strokeWidth=2;dashed=1;dashPattern=6 4;fontColor=#0F172A;align=center;" edge="1" parent="1" source="client_model" target="feast_server">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="req" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
-        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="stream" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
-        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="batch" target="transform"><mxGeometry relative="1" as="geometry" /></mxCell>
-        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="transform" target="feast"><mxGeometry relative="1" as="geometry" /></mxCell>
-        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="feast" target="online"><mxGeometry relative="1" as="geometry" /></mxCell>
-        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;dashPattern=8 8;strokeWidth=1.5;" edge="1" parent="1" source="feast" target="offline"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Flow 2: Browser -> Feast UI (Inspect :8888) -->
+        <mxCell id="flow_browser" value="&lt;b&gt;Inspect&lt;/b&gt;&lt;br&gt;:8888" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F172A;strokeWidth=2;dashed=1;dashPattern=6 4;fontColor=#0F172A;align=center;" edge="1" parent="1" source="web_browser" target="feast_ui">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Flow 3: Feast Server -> Redis (Sub-5ms In-Memory Read) -->
+        <mxCell id="flow_server_redis" value="&lt;b style=&quot;color: #0369A1;&quot;&gt;get_online_features&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px; color: #0284C7;&quot;&gt;Sub-5ms In-Memory Read&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2.2;dashed=1;dashPattern=6 4;fontColor=#0F172A;align=center;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="650" y="160" as="sourcePoint" />
+            <mxPoint x="1120" y="250" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1120" y="160" />
+            </Array>
+            <mxPoint x="-70" y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Flow 4: Parquet -> Schema Registry -> Redis (Batch Materialization) -->
+        <mxCell id="flow_batch_1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F172A;strokeWidth=2;dashed=1;dashPattern=6 4;" edge="1" parent="1" source="parquet_store" target="schema_registry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_batch_2" value="&lt;b style=&quot;color: #B91C1C;&quot;&gt;feast materialize&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #7F1D1D;&quot;&gt;Batch Sync to Redis&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DC2626;strokeWidth=2.2;dashed=1;dashPattern=6 4;align=center;" edge="1" parent="1" source="schema_registry" target="redis_store">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Flow 5: Streaming Events -> Redis (Stream Ingestion via Push) -->
+        <mxCell id="flow_stream" value="&lt;b style=&quot;color: #15803D;&quot;&gt;feast push (Stream Ingest)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #166534;&quot;&gt;Real-Time Push to Redis Cache&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2.2;dashed=1;dashPattern=6 4;align=center;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="290" y="380" as="sourcePoint" />
+            <mxPoint x="1060" y="490" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="330" y="380" />
+              <mxPoint x="330" y="500" />
+              <mxPoint x="1060" y="500" />
+            </Array>
+            <mxPoint x="-160" y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
       </root>
     </mxGraphModel>
   </diagram>

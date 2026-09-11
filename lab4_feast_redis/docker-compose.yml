@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: feast-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - feast-redis-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  feast-server:
+    build: .
+    container_name: feast-server
+    command: ["server"]
+    ports:
+      - "6566:6566"
+    volumes:
+      - ./feature_repo:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - feast-redis-net
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  feast-ui:
+    build: .
+    container_name: feast-ui
+    command: ["ui"]
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./feature_repo:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - feast-redis-net
+    depends_on:
+      - feast-server
+
+networks:
+  feast-redis-net:
+    driver: bridge
+
+volumes:
+  redis-data:
