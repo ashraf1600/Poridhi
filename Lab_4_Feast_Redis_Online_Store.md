@@ -1,4 +1,4 @@
-# Lab 4: Feast + Redis: Mastering the Online Store for Real-Time Inference
+# Lab 4: Feast + Redis: The Online Store for Real-Time Inference
 
 ## Introduction
 
