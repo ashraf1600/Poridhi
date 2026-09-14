@@ -4,7 +4,7 @@
 
 This lab teaches you how to containerize Feast, an open-source feature store, using Docker and Docker Compose. You will construct a local feature store architecture that pairs a file-based Parquet offline store with an embedded SQLite online store, exposing feature vectors through an HTTP REST endpoint and visual catalog.
 
-![Figure 1: Feast Local Feature Store Containerized Architecture](images/feast_architecture.png)
+![Figure 1: Feast Local Feature Store Containerized Architecture](../images/feast_architecture.png)
 
 
 ## Learning Objectives
@@ -534,7 +534,7 @@ feast-server   feast-server:latest  "entrypoint.sh serve"  feast-server   5 minu
 feast-ui       feast-ui:latest      "entrypoint.sh ui"     feast-ui       5 minutes ago   Up 5 minutes             0.0.0.0:8888->8888/tcp, [::]:8888->8888/tcp
 ```
 
-![Figure 3: Docker Compose Service Status](images/ss1_docker_compose_ps.png)
+![Figure 3: Docker Compose Service Status](../images/ss1_docker_compose_ps.png)
 
 Inspect server startup and feature materialization logs:
 
@@ -542,7 +542,7 @@ Inspect server startup and feature materialization logs:
 docker compose logs feast-server
 ```
 
-![Figure 4: Feast Server Startup and Materialization Logs](images/ss2_feast_server_logs.png)
+![Figure 4: Feast Server Startup and Materialization Logs](../images/ss2_feast_server_logs.png)
 
 Verify file persistence on the host machine filesystem:
 
@@ -550,7 +550,7 @@ Verify file persistence on the host machine filesystem:
 Get-ChildItem feature_repo\data
 ```
 
-![Figure 5: Host Storage File Verification](images/ss3_host_data_files.png)
+![Figure 5: Host Storage File Verification](../images/ss3_host_data_files.png)
 
 Inspect the SQLite online store directly on the host using Python:
 
@@ -558,7 +558,7 @@ Inspect the SQLite online store directly on the host using Python:
 python inspect_sqlite.py
 ```
 
-![Figure 6: Direct SQLite Database Inspection](images/ss4_sqlite_inspection.png)
+![Figure 6: Direct SQLite Database Inspection](../images/ss4_sqlite_inspection.png)
 
 ### 4.5 Checkpoint
 
@@ -649,7 +649,7 @@ Execute the test client:
 python test_client.py
 ```
 
-![Figure 7: Python Client Feature Retrieval Output](images/ss5_python_client_output.png)
+![Figure 7: Python Client Feature Retrieval Output](../images/ss5_python_client_output.png)
 
 ### 5.4 Test with cURL REST API
 
@@ -673,7 +673,7 @@ Send the HTTP request using cURL:
 curl.exe -s -X POST http://localhost:6566/get-online-features -H "Content-Type: application/json" -d @request.json
 ```
 
-![Figure 8: REST API Query via cURL Output](images/ss6_curl_rest_api.png)
+![Figure 8: REST API Query via cURL Output](../images/ss6_curl_rest_api.png)
 
 ### 5.5 Direct SQLite Table Query
 
@@ -690,7 +690,7 @@ Execute SQL commands to examine tables and sample data:
 SELECT entity_key, feature_name, value FROM driver_ranking_driver_hourly_stats LIMIT 3;
 ```
 
-![Figure 9: SQLite3 Command Line Table Query](images/ss10_sqlite_table_query.png)
+![Figure 9: SQLite3 Command Line Table Query](../images/ss10_sqlite_table_query.png)
 
 ---
 
@@ -707,7 +707,7 @@ Open your web browser and navigate to `http://localhost:8888`. Verify that:
 3. The `driver_hourly_stats` feature view displays properties for `conv_rate`, `acc_rate`, and `avg_daily_trips`.
 4. The underlying data source references `data/driver_stats.parquet`.
 
-![Figure 10: Feast Web UI Catalog Dashboard](images/ss7_feast_web_ui.png)
+![Figure 10: Feast Web UI Catalog Dashboard](../images/ss7_feast_web_ui.png)
 
 ### 6.2 Inspect Registered Entities via CLI
 
@@ -717,7 +717,7 @@ You can also inspect registered Feast entities from the command line:
 docker exec feast-server feast entities list
 ```
 
-![Figure 11: Feast CLI Registered Entities List](images/ss8_feast_entities_list.png)
+![Figure 11: Feast CLI Registered Entities List](../images/ss8_feast_entities_list.png)
 
 ### 6.3 Inspect Registered Feature Views via CLI
 
@@ -727,7 +727,7 @@ List registered feature views and verify the online store backend:
 docker exec feast-server feast feature-views list
 ```
 
-![Figure 12: Feast CLI Registered Feature Views List](images/ss9_feast_feature_views_list.png)
+![Figure 12: Feast CLI Registered Feature Views List](../images/ss9_feast_feature_views_list.png)
 
 ---
 
