@@ -6,7 +6,7 @@ In machine learning systems deployed for high-concurrency production inference, 
 
 Production-grade real-time recommendation engines, fraud detection systems, and dynamic dispatch systems require sub-millisecond to low single-digit millisecond feature retrieval. In this lab, you will replace SQLite with Redis as the high-performance online feature store for Feast. Redis provides an in-memory key-value data structure store capable of handling tens of thousands of concurrent queries per second with sub-5ms response times, native TTL key eviction, and support for high-freshness streaming feature ingestion.
 
-![Figure 1: Feast + Redis Real-Time Feature Serving Architecture](images/lab4_feast_redis_architecture.png)
+![Figure 1: Feast + Redis Real-Time Feature Serving Architecture](../images/lab4_feast_redis_architecture.png)
 
 ```text
 +----------------------------------------------------------------------------------------------------+
@@ -211,7 +211,7 @@ docker compose ps
 docker exec -it feast-redis redis-cli ping
 ```
 
-![Figure 2: Container Status and Redis Healthcheck](images/lab4_ss1_redis_ping.png)
+![Figure 2: Container Status and Redis Healthcheck](../images/lab4_ss1_redis_ping.png)
 
 ---
 
@@ -309,7 +309,7 @@ Apply these definitions to initialize the metadata registry and prepare Redis ta
 docker exec -it feast-server feast apply
 ```
 
-![Figure 3: Feast Apply Registering Entities and Push Sources](images/lab4_ss2_feast_apply.png)
+![Figure 3: Feast Apply Registering Entities and Push Sources](../images/lab4_ss2_feast_apply.png)
 
 ---
 
@@ -325,7 +325,7 @@ docker exec -it feast-server feast materialize-incremental $(date -u +"%Y-%m-%dT
 
 Feast reads the latest records per `driver_id` from `data/driver_stats.parquet`, evaluates the 1-day TTL window, and writes serialized hashes into Redis.
 
-![Figure 4: Materializing Historical Batch Records into Redis](images/lab4_ss3_feast_materialize.png)
+![Figure 4: Materializing Historical Batch Records into Redis](../images/lab4_ss3_feast_materialize.png)
 
 ---
 
@@ -385,7 +385,7 @@ Each Redis key is stored as a Redis Hash containing:
 - `_ts:<feature_view_name>`: ISO timestamp of the event.
 - Individual feature fields stored as raw binary buffers, ensuring minimal serialization overhead.
 
-![Figure 5: Low-Level Redis Inspection via redis-cli](images/lab4_ss4_redis_cli_inspection.png)
+![Figure 5: Low-Level Redis Inspection via redis-cli](../images/lab4_ss4_redis_cli_inspection.png)
 
 ---
 
@@ -399,7 +399,7 @@ python benchmark_latency.py
 
 The script issues 100 sequential feature requests for multiple entity keys against the Feast feature server, recording the exact round-trip response times.
 
-![Figure 6: Online Feature Serving Latency Benchmark Table](images/lab4_ss5_latency_benchmark.png)
+![Figure 6: Online Feature Serving Latency Benchmark Table](../images/lab4_ss5_latency_benchmark.png)
 
 ### Performance Analysis
 
@@ -421,7 +421,7 @@ Execute the streaming push script [push_streaming.py](file:///d:/Complete%20Data
 docker exec -it feast-server python /app/push_streaming.py
 ```
 
-![Figure 7: Streaming Feature Push and Freshness Verification](images/lab4_ss6_streaming_push.png)
+![Figure 7: Streaming Feature Push and Freshness Verification](../images/lab4_ss6_streaming_push.png)
 
 ### How `store.push` Works
 
@@ -482,7 +482,7 @@ Run the test client:
 python test_client.py
 ```
 
-![Figure 8: REST Feature Retrieval with Defensive Imputation](images/lab4_ss7_curl_rest_api.png)
+![Figure 8: REST Feature Retrieval with Defensive Imputation](../images/lab4_ss7_curl_rest_api.png)
 
 Driver `9999` is gracefully handled by imputing default global averages, preventing production prediction outages.
 
@@ -503,7 +503,7 @@ The Web UI displays:
 - **Online Store Metadata:** Online store status targeting `redis:6379`.
 - **Schema Explorer:** Feature names, data types (`Float32`, `Int64`), and configured TTL windows.
 
-![Figure 9: Feast Web UI Dashboard](images/lab4_ss8_feast_web_ui.png)
+![Figure 9: Feast Web UI Dashboard](../images/lab4_ss8_feast_web_ui.png)
 
 ---
 
