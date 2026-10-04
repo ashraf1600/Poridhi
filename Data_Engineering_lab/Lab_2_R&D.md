@@ -59,33 +59,6 @@ By completing this lab, you will:
 
 ### 3.1 Overall Architecture
 
-``` text
-                           Order Data
-                               |
-                 +-------------+-------------+
-                 |                           |
-                 v                           v
-          BATCH PIPELINE              STREAMING PIPELINE
-                 |                           |
-             Cron Job                    Kafka Producer
-                 |                           |
-                 v                           v
-          Batch Processor              Kafka Topic
-                 |                           |
-                 |                     Kafka Consumer
-                 |                           |
-                 +-------------+-------------+
-                               |
-                               v
-                    Timestamp Processing
-                               |
-                               v
-                    Metrics & Comparison
-                    /        |         \
-                   /         |          \
-              Latency    Throughput   Freshness
-```
-
 ![Batch vs Streaming Architecture Diagram](assets/batch_vs_stream.svg)
 
 ### 3.2 Batch Flow
