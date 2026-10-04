@@ -1,13 +1,4 @@
 # Lab 1.2 --- Batch vs Streaming Trade-offs
-
-**Level:** Beginner\
-**Type:** Standalone\
-**Objective:** Run the same data-processing job using **Batch (Cron)**
-and **Streaming (Kafka)**, then compare **latency, throughput, and data
-freshness** using timestamps.
-
-------------------------------------------------------------------------
-
 ## 1. Introduction
 
 ### 1.1 Real-Life Scenario
@@ -59,46 +50,14 @@ By completing this lab, you will:
 
 ### 3.1 Overall Architecture
 
-![Batch vs Streaming Architecture Diagram](assets/batch_vs_stream.svg)
 
 ### 3.2 Batch Flow
 
-``` text
-Order Data
-    |
-    v
-Data File
-    |
-    v
-Cron Scheduler
-    |
-    v
-Batch Processor
-    |
-    v
-Processed Result
-```
 
 The batch system waits until the scheduled execution time before
 processing the available data.
 
 ### 3.3 Streaming Flow
-
-``` text
-Order Event
-    |
-    v
-Kafka Producer
-    |
-    v
-Kafka Topic
-    |
-    v
-Kafka Consumer
-    |
-    v
-Processed Result
-```
 
 The streaming system processes events continuously as they arrive.
 
