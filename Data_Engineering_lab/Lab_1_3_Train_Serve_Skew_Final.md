@@ -51,7 +51,7 @@ Below is the end-to-end architecture of the ML monitoring and skew simulation pi
                                └───────────────────────────┘
 ```
 
-![QuickCart Train-Serve Skew Architecture](assets/skew_architecture.png)
+![QuickCart Train-Serve Skew Architecture](assets/training_serve.svg)
 
 The architecture diagram illustrates the dual-phase lifecycle of QuickCart's order cancellation prediction system. The historical branch prepares a certified training and offline test dataset, establishes performance baselines, and serializes the trained model pipeline. The production branch simulates live incoming serving traffic experiencing real-world feature drift, passing these unlabelled inputs through the identical frozen model artifact. Finally, the skew detection engine compares distribution statistics across both pipelines, quantifying train-serve skew and triggering engineering alerts before operational degradation harms business revenue.
 
