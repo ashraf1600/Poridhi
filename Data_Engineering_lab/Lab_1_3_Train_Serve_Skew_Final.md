@@ -8,49 +8,6 @@ However, over the last few months, QuickCart's operational landscape has shifted
 
 Below is the end-to-end architecture of the ML monitoring and skew simulation pipeline you will build for QuickCart:
 
-```text
-                           QUICKCART TRAIN-SERVE SKEW ARCHITECTURE
-
-       Historical Training Lifecycle                       Production Serving & Drift Lifecycle
-     ┌───────────────────────────────┐                  ┌─────────────────────────────────────────┐
-     │  Historical Order Data (CSV)  │                  │  Incoming Production Live Stream (CSV)  │
-     │  (Normal Times & Distances)   │                  │  (Monsoon Delays & Expanded Distances)  │
-     └───────────────┬───────────────┘                  └────────────────────┬────────────────────┘
-                     │                                                       │
-                     ▼                                                       ▼
-     ┌───────────────────────────────┐                                       │
-     │      Pipeline Preprocessor    │                                       │
-     │  • Train/Test Split (80/20)   │                                       │
-     │  • StandardScaler Normalizer  │                                       │
-     └───────────────┬───────────────┘                                       │
-                     │                                                       │
-                     ▼                                                       │
-     ┌───────────────────────────────┐                                       │
-     │   Model Training & Freezing   │                                       │
-     │   LogisticRegression Pipeline │                                       │
-     │   (Saved to models/model.pkl) │                                       │
-     └───────┬───────────────┬───────┘                                       │
-             │               │                                               │
-             │ Frozen Model  └─────────────────────────────────┐             │
-             ▼                                                 ▼             ▼
-     ┌───────────────────────────────┐                  ┌─────────────────────────────────────────┐
-     │    Offline Test Evaluation    │                  │         Online Production Serving       │
-     │ • Evaluate Test Accuracy      │                  │ • Score Unseen Live Production Stream   │
-     │ • Reference Prediction Baseline│                 │ • Unlabeled Online Cancellation Shift   │
-     │ (results/offline_preds.csv)   │                  │ (results/online_preds.csv)              │
-     └───────────────┬───────────────┘                  └────────────────────┬────────────────────┘
-                     │                                                       │
-                     └───────────────────────┬───────────────────────────────┘
-                                             ▼
-                               ┌───────────────────────────┐
-                               │  Skew Detection Engine    │
-                               │ • Feature Drift Delta (%) │
-                               │ • Prediction Shift Check  │
-                               │ • Threshold Alerts (>20%) │
-                               │ • skew_report.csv & Plots │
-                               └───────────────────────────┘
-```
-
 ![QuickCart Train-Serve Skew Architecture](assets/training_serve.svg)
 
 The architecture diagram illustrates the dual-phase lifecycle of QuickCart's order cancellation prediction system. The historical branch prepares a certified training and offline test dataset, establishes performance baselines, and serializes the trained model pipeline. The production branch simulates live incoming serving traffic experiencing real-world feature drift, passing these unlabelled inputs through the identical frozen model artifact. Finally, the skew detection engine compares distribution statistics across both pipelines, quantifying train-serve skew and triggering engineering alerts before operational degradation harms business revenue.
