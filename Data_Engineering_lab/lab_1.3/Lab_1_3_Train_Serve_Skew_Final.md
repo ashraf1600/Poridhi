@@ -81,20 +81,24 @@ The VS Code Server Explorer displays the newly created project directories for t
 
 1. Open an integrated terminal in VS Code Server by navigating to **Terminal > New Terminal**.
 2. Create an isolated Python virtual environment named `.venv`:
+
    ```bash
    python3 -m venv .venv
    ```
 3. Activate the virtual environment:
+
    ```bash
    source .venv/bin/activate
    ```
 
    *(Note: On Windows PowerShell, execute: `.venv\Scripts\Activate.ps1`)*
 4. In the VS Code Explorer root directory, click the **New File** icon and create:
+
    ```text
    requirements.txt
    ```
 5. Open `requirements.txt` in the editor and add the required ML libraries:
+
    ```text
    pandas>=2.0.0
    numpy>=1.24.0
@@ -102,6 +106,7 @@ The VS Code Server Explorer displays the newly created project directories for t
    matplotlib>=3.7.0
    ```
 6. Save the file (**File > Save**) and install the dependencies inside your terminal:
+
    ```bash
    pip install -r requirements.txt
    ```
