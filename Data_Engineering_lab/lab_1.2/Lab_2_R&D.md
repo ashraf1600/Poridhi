@@ -8,7 +8,7 @@ To process incoming orders, you can either accumulate records for periodic sched
 
 You will build and compare the following QuickCart batch and streaming architectures:
 
-![Batch vs Streaming Architecture](assets/batch_vs_stream.svg)
+![Batch vs Streaming Architecture](assets/batch_vs_streaming_v2.drawio.svg)
 
 The batch workflow periodically collects and processes order files on a schedule, while the streaming pipeline continuously ingests live Kafka events with low latency. Comparing both demonstrates when batch processing is efficient and when streaming is required.
 
@@ -36,6 +36,7 @@ By completing this lab, you will:
 
 ### 3.1 Overall Architecture
 
+![Overall Architecture](assets/batch_vs_streaming_v2.drawio.svg)
 
 ### 3.2 Batch Flow
 
