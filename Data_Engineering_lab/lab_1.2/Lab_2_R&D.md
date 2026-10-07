@@ -1,32 +1,18 @@
-# Lab 1.2 --- Batch vs Streaming Trade-offs
-## 1. Introduction
+# Lab 1.2: Batch vs Streaming Trade-offs
 
-### 1.1 Real-Life Scenario
+## 1. Introduction:
 
-Imagine that you are working as a data engineer for an **online food
-delivery company**. Every few seconds, customers place new orders, and
-the company wants to monitor the incoming orders, total sales, and
-recent activity.
+Imagine you are working as a **Data Engineer** at **QuickCart**, a fast-growing online food delivery platform. Every few seconds, customers place orders, and the team needs to monitor order volumes, sales, and delivery operations.
 
-There are two possible ways to process these orders. The first approach
-is to collect orders for a fixed period and process them together using
-a scheduled **batch job**. The second approach is to process every order
-as soon as it arrives using a **streaming pipeline with Kafka**.
+To process incoming orders, you can either accumulate records for periodic scheduled **batch processing** or process events immediately using a real-time **streaming pipeline with Apache Kafka**. In this lab, you will implement both approaches using the same order dataset to compare latency, throughput, and data freshness trade-offs.
 
-In this lab, we will implement both approaches using the same type of
-order data and comparable processing logic. We will then use timestamps
-to measure how quickly each approach processes data, how much data it
-can process, and how fresh the processed information remains.
-
-The goal is not simply to decide that one approach is better than the
-other. Instead, the goal is to understand **when batch processing is
-appropriate and when streaming processing is more suitable**.
-
-Below is the comparative architecture diagram illustrating both the periodic scheduled batch flow and the real-time event-driven streaming pipeline:
+You will build and compare the following QuickCart batch and streaming architectures:
 
 ![Batch vs Streaming Architecture](assets/batch_vs_stream.svg)
 
-------------------------------------------------------------------------
+The batch workflow periodically collects and processes order files on a schedule, while the streaming pipeline continuously ingests live Kafka events with low latency. Comparing both demonstrates when batch processing is efficient and when streaming is required.
+
+---
 
 ## 2. Lab Objective
 
